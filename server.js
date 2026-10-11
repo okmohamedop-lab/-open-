@@ -1,13 +1,20 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// جلب المفتاح بأمان من متغيرات البيئة في Render
+// لجعل السيرفر يعرض الواجهة عند فتح الرابط المباشر
+app.use(express.static(__dirname));
+
 const API_KEY = process.env.AI_API_KEY;
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.post('/api/chat', async (req, res) => {
     try {
@@ -20,7 +27,7 @@ app.post('/api/chat', async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini", // أو اسم النموذج الخاص بمفتاحك
+                model: "gpt-4o-mini",
                 messages: [{ role: "user", content: message }]
             })
         });
