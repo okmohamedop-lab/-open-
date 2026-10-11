@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/api/chat', async, res) => {
+app.post('/api/chat', async (req, res) => {
     try {
         const { message } = req.body;
 
@@ -28,7 +28,7 @@ app.post('/api/chat', async, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini", // يمكنك تعديله إلى أي نموذج مدعوم في حسابك
+                model: "gpt-4o-mini",
                 messages: [{ role: "user", content: message }]
             })
         });
