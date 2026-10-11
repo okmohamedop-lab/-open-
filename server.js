@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// لجعل السيرفر يعرض الواجهة عند فتح الرابط المباشر
+// عرض واجهة الموقع عند فتح الرابط الرئيسي
 app.use(express.static(__dirname));
 
 const API_KEY = process.env.AI_API_KEY;
@@ -16,18 +16,19 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', async, res) => {
     try {
         const { message } = req.body;
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // الاتصال ببوابة Bluesminds الصحيحة
+        const response = await fetch('https://api.bluesminds.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini",
+                model: "gpt-4o-mini", // يمكنك تعديله إلى أي نموذج مدعوم في حسابك
                 messages: [{ role: "user", content: message }]
             })
         });
@@ -35,6 +36,7 @@ app.post('/api/chat', async (req, res) => {
         const data = await response.json();
         res.json(data);
     } catch (error) {
+        console.error("Error:", error);
         res.status(500).json({ error: 'حدث خطأ في الاتصال بالذكاء الاصطناعي' });
     }
 });
