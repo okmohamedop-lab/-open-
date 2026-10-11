@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const app = express();
 app.use(express.json());
@@ -20,7 +19,10 @@ app.post('/api/chat', async (req, res) => {
     try {
         const { message } = req.body;
 
-        // الاتصال ببوابة Bluesminds الصحيحة
+        if (!message) {
+            return res.status(400).json({ error: 'الرجاء إرسال نص الرسالة' });
+        }
+
         const response = await fetch('https://api.bluesminds.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -34,9 +36,16 @@ app.post('/api/chat', async (req, res) => {
         });
 
         const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error("Error:", error);
+        
+        if (response.ok) {
+            res.json(data);
+        } else {
+            console.error("API Error:", data);
+            res.status(response.status).json({ error: data.error || 'حدث خطأ من مزود الخدمة' });
+        }
+
+    } `catch` (error) {
+        console.error("Server Error:", error);
         res.status(500).json({ error: 'حدث خطأ في الاتصال بالذكاء الاصطناعي' });
     }
 });
